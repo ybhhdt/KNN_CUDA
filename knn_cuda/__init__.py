@@ -38,8 +38,8 @@ def load_cpp_ext(ext_name):
 _knn = load_cpp_ext("knn")
 
 
-def knn(ref, query, k):
-    d, i = _knn.knn(ref, query, k)
+def knn(ref, query, k, threshold):
+    d, i = _knn.knn(ref, query, k, threshold)
     i -= 1
     return d, i
 
@@ -53,10 +53,11 @@ def _T(t, mode=False):
 
 class KNN(nn.Module):
 
-    def __init__(self, k, transpose_mode=False):
+    def __init__(self, k, transpose_mode=False, threshold=False):
         super(KNN, self).__init__()
         self.k = k
         self._t = transpose_mode
+        self.threshold = threshold
 
     def forward(self, ref, query):
         assert ref.size(0) == query.size(0), "ref.shape={} != query.shape={}".format(ref.shape, query.shape)
@@ -65,11 +66,10 @@ class KNN(nn.Module):
             D, I = [], []
             for bi in range(batch_size):
                 r, q = _T(ref[bi], self._t), _T(query[bi], self._t)
-                d, i = knn(r.float(), q.float(), self.k)
+                d, i = knn(r.float(), q.float(), self.k, self.threshold)
                 d, i = _T(d, self._t), _T(i, self._t)
                 D.append(d)
                 I.append(i)
             D = torch.stack(D, dim=0)
             I = torch.stack(I, dim=0)
         return D, I
-
