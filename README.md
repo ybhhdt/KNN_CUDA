@@ -2,7 +2,7 @@
 
 + ref: [kNN-CUDA](https://github.com/vincentfpgarcia/kNN-CUDA)
 + ref: [pytorch knn cuda](https://github.com/chrischoy/pytorch_knn_cuda)
-+ author: [sli@mail.bnu.edu.cn](sli@mail.bnu.edu.cn)
++ ref: [kNN-CUDA](https://github.com/unlimblue/KNN_CUDA)
 
 
 #### Modifications 
@@ -86,7 +86,13 @@ else
         indx is Tensor [bs x k x nq]
 """
 
+"""
+When the distance between two points is less than 1e-8,
+their coordinates can be considered identical,
+and the overlapping points will be excluded from the KNN consideration.
+"""
 knn = KNN(k=10, transpose_mode=True,threshold=True)
+#knn = KNN(k=10, transpose_mode=True)#The default value of the threshold is set to False
 ref = torch.rand(32, 1000, 5).cuda()
 query = torch.rand(32, 50, 5).cuda()
 dist, indx = knn(ref, query)  # 32 x 50 x 10
