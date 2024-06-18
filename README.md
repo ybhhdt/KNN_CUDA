@@ -37,11 +37,6 @@ cd KNN_CUDA
 make && make install
 ```
 
-+ from wheel
-
-```bash
-pip install --upgrade https://github.com/unlimblue/KNN_CUDA/releases/download/0.2/KNN_CUDA-0.2-py3-none-any.whl
-```
 And then, make sure [`ninja`](https://ninja-build.org/) has been installed:
   1. see [https://pytorch.org/tutorials/advanced/cpp_extension.html](https://pytorch.org/tutorials/advanced/cpp_extension.html)
   2. **or just**:
@@ -49,16 +44,6 @@ And then, make sure [`ninja`](https://ninja-build.org/) has been installed:
 wget -P /usr/bin https://github.com/unlimblue/KNN_CUDA/raw/master/ninja
 ```
 
-+ for windows
-
-You should use branch `windows`:
-
-```bash
-git clone --branch windows https://github.com/unlimblue/KNN_CUDA.git
-cd C:\\PATH_TO_KNN_CUDA
-make
-make install
-```
 
 #### Usage
 
