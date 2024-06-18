@@ -26,8 +26,8 @@
   * @param dim   dimension of points = height of matrices A and B
   * @param AB    pointer on the matrix containing the wA*wB distances computed
   */
-__global__ void cuComputeDistanceGlobal( float* A, int wA,
-    float* B, int wB, int dim, float* AB){
+__global__ void cuComputeDistanceGlobal(float* A, int wA,
+    float* B, int wB, int dim, float* AB, bool threshold = false){
 
   // Declaration of the shared memory arrays As and Bs used to store the sub-matrix of A and B
   __shared__ float shared_A[BLOCK_DIM][BLOCK_DIM];
@@ -55,7 +55,7 @@ __global__ void cuComputeDistanceGlobal( float* A, int wA,
   step_B  = BLOCK_DIM * wB;
   end_A   = begin_A + (dim-1) * wA;
 
-    // Conditions
+  // Conditions
   int cond0 = (begin_A + tx < wA); // used to write in shared memory
   int cond1 = (begin_B + tx < wB); // used to write in shared memory & to computations and to write in output matrix
   int cond2 = (begin_A + ty < wA); // used to computations and to write in output matrix
@@ -88,8 +88,22 @@ __global__ void cuComputeDistanceGlobal( float* A, int wA,
   }
 
   // Write the block sub-matrix to device memory; each thread writes one element
-  if (cond2 && cond1)
-    AB[(begin_A + ty) * wB + begin_B + tx] = ssd;
+  if (threshold) {
+    if (cond2 && cond1){
+      if (ssd <= 1e-8) {
+        AB[(begin_A + ty) * wB + begin_B + tx] = 1e8; 
+      } 
+      else {
+        AB[(begin_A + ty) * wB + begin_B + tx] = ssd;
+      }
+    }
+  } 
+  else {
+    if (cond2 && cond1){
+      AB[(begin_A + ty) * wB + begin_B + tx] = ssd;
+    }
+  }
+
 }
 
 
@@ -230,7 +244,7 @@ void debug(float * dist_dev, long * ind_dev, const int query_nb, const int k){
   *
   */
 void knn_device(float* ref_dev, int ref_nb, float* query_dev, int query_nb,
-    int dim, int k, float* dist_dev, long* ind_dev, cudaStream_t stream){
+    int dim, int k, float* dist_dev, long* ind_dev, cudaStream_t stream, bool threshold){
 
   // Grids ans threads
   dim3 g_16x16(query_nb / BLOCK_DIM, ref_nb / BLOCK_DIM, 1);
@@ -249,7 +263,7 @@ void knn_device(float* ref_dev, int ref_nb, float* query_dev, int query_nb,
 
   // Kernel 1: Compute all the distances
   cuComputeDistanceGlobal<<<g_16x16, t_16x16, 0, stream>>>(ref_dev, ref_nb,
-      query_dev, query_nb, dim, dist_dev);
+      query_dev, query_nb, dim, dist_dev, threshold);
 
 #if DEBUG
   printf("Pre insertionSort\n");
