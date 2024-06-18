@@ -31,7 +31,7 @@
 + from source
 
 ```bash
-git clone https://github.com/unlimblue/KNN_CUDA.git
+git clone https://github.com/ybhhdt/KNN_CUDA.git
 cd KNN_CUDA
 make && make install
 ```
@@ -85,10 +85,9 @@ else
         indx is Tensor [bs x k x nq]
 """
 
-knn = KNN(k=10, transpose_mode=True)
-
+knn = KNN(k=10, transpose_mode=True,threshold=True)
 ref = torch.rand(32, 1000, 5).cuda()
 query = torch.rand(32, 50, 5).cuda()
-
 dist, indx = knn(ref, query)  # 32 x 50 x 10
+
 ```
