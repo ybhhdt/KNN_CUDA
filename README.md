@@ -6,6 +6,7 @@
 
 
 #### Modifications 
++ Added a `threshold` feature to remove overlapping points
 + Aten support
 + pytorch v1.0+ support
 + pytorch c++ extention 
